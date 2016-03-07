@@ -43,16 +43,16 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
      * Static function call by the c# to launch the service SpeechService
      */
     public static void StartListening(UnityPlayerNativeActivity activity) {
-        Log.i(TAG, "START THE SERVICE! ");
+        Log.i(TAG, "START LISTENING! ");
 
         if( UnityPlayer.currentActivity != null) {
             Log.i(TAG, "STARTING THE SERVICE! ");
-            UnityPlayer.UnitySendMessage("CameraMovement", "ReceiveMessageFromAndroid", "TRY 2 RESTART SERVICE");
+            UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", "STARTING SERVICE");
             mActivity = activity;
             Intent intent = new Intent(mActivity, SpeechRecognizerPlugin.class);
             mActivity.startService(intent);
         }else{
-            UnityPlayer.UnitySendMessage("CameraMovement", "ReceiveMessageFromAndroid", "Succesfully Started Speech Recognition");
+            UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", "The activity is not found");
         }
 
     }
@@ -73,7 +73,9 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
         if (voiceText != null) {
             //SendToUnity("");
             if (voiceText.size() > 0) {
+                //Send the first recognition result
                 SendToUnity(voiceText.get(0));
+                Log.i(TAG,voiceText.get(0));
             } else {
                 SendToUnity("nothing!");
             }
@@ -93,12 +95,14 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             if(text != null && text.isEmpty() )Log.i("TESTING: ", "final message! =" + text);
             try {
 
-                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage("CubeMessage", "GetMessage", text);
+                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", text);
 
             } catch (Exception e) {
                 // Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
             }
             // m_EngineSR.stopListening();
+            // we have to stop service everytime we finished with a recognition so the service can be started again
+            stopService(new Intent(this, SpeechRecognizerPlugin.class));
         }
 
 
@@ -113,7 +117,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
         if(m_EngineSR!=null) {
             try {
 
-                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage("CubeMessage", "GetError", text);
+                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", text);
 
             } catch (Exception e) {
                 // Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
@@ -143,7 +147,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     }
     @Override
     public void onResults(Bundle results) {
-        //checkForCommands(results);
+        checkForCommands(results);
     }
     @Override
      public void onPartialResults(Bundle partialResults) {
