@@ -64,6 +64,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
         m_EngineSR = createSpeechRecognizer(this);
         m_EngineSR.setRecognitionListener(this);
         Intent voiceIntent = RecognizerIntent.getVoiceDetailsIntent(getApplicationContext());
+        voiceIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"ja");
         m_EngineSR.startListening(voiceIntent);
         super.onCreate();
     }
