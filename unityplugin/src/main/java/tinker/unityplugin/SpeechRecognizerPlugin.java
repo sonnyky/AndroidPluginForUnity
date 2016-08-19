@@ -11,6 +11,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognitionService;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.Voice;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -39,20 +40,21 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     public static UnityPlayerNativeActivity mActivity;
     static String TAG = "VOICE RECOGNITION";
     public static Context thisContext;
+    private static VoiceSettings myVoiceSetting = new VoiceSettings();
 
     /**
      * StartListening**************************************************
      * Static function call by the c# to launch the service SpeechService
      */
-    public static void StartListening(UnityPlayerNativeActivity activity) {
+    public static void StartListening(UnityPlayerNativeActivity activity, String lang) {
         Log.i(TAG, "START LISTENING! ");
-
         if( UnityPlayer.currentActivity != null) {
-            Log.i(TAG, "STARTING THE SERVICE! ");
+            Log.i(TAG, "STARTING THE SERVICE! with language " + lang);
             UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", "STARTING SERVICE");
             mActivity = activity;
             Intent intent = new Intent(mActivity, SpeechRecognizerPlugin.class);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"fr");
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,lang);
+            myVoiceSetting.language_setting = lang;
             mActivity.startService(intent);
         }else{
             UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", "The activity is not found");
@@ -63,11 +65,12 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     @Override
     public void onCreate() {
 
-        Log.i(TAG, "onCreate()-------------------------------------");
+        Log.i(TAG, "onCreate()-------------------------------------" + myVoiceSetting.language_setting);
         m_EngineSR = createSpeechRecognizer(this);
         m_EngineSR.setRecognitionListener(this);
         Intent voiceIntent = RecognizerIntent.getVoiceDetailsIntent(getApplicationContext());
-        //voiceIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"ja");
+        voiceIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,myVoiceSetting.language_setting);
+
         m_EngineSR.startListening(voiceIntent);
         super.onCreate();
 
