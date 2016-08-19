@@ -1,19 +1,12 @@
 package tinker.unityplugin;
 
-import android.app.Activity;
-import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Debug;
-import android.os.IBinder;
 import android.speech.RecognitionListener;
 import android.speech.RecognitionService;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
-import android.speech.tts.Voice;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.unity3d.player.UnityPlayer;
 import com.unity3d.player.UnityPlayerNativeActivity;
@@ -39,12 +32,10 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     private SpeechRecognizer m_EngineSR;
     public static UnityPlayerNativeActivity mActivity;
     static String TAG = "VOICE RECOGNITION";
-    public static Context thisContext;
     private static VoiceSettings myVoiceSetting = new VoiceSettings();
 
     /**
-     * StartListening**************************************************
-     * Static function call by the c# to launch the service SpeechService
+     * Static function call by the c# to launch the service
      */
     public static void StartListening(UnityPlayerNativeActivity activity, String lang) {
         Log.i(TAG, "START LISTENING! ");
@@ -53,7 +44,6 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", "STARTING SERVICE");
             mActivity = activity;
             Intent intent = new Intent(mActivity, SpeechRecognizerPlugin.class);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,lang);
             myVoiceSetting.language_setting = lang;
             mActivity.startService(intent);
         }else{
@@ -64,33 +54,17 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     //The service is created and voice recognition service has been started
     @Override
     public void onCreate() {
-
-        Log.i(TAG, "onCreate()-------------------------------------" + myVoiceSetting.language_setting);
         m_EngineSR = createSpeechRecognizer(this);
         m_EngineSR.setRecognitionListener(this);
         Intent voiceIntent = RecognizerIntent.getVoiceDetailsIntent(getApplicationContext());
         voiceIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,myVoiceSetting.language_setting);
-
         m_EngineSR.startListening(voiceIntent);
         super.onCreate();
-
-        thisContext = this;
-    }
-
-    public void makeToast(){
-        final Activity activity = UnityPlayer.currentActivity;
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(activity, "makeToast", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void checkForCommands(Bundle bundle) {
         ArrayList<String> voiceText = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         if (voiceText != null) {
-            //SendToUnity("");
             if (voiceText.size() > 0) {
                 //Send the first recognition result
                 SendToUnity(voiceText.get(0));
@@ -123,8 +97,6 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             // we have to stop service everytime we finished with a recognition so the service can be started again
             stopService(new Intent(this, SpeechRecognizerPlugin.class));
         }
-
-
         this.onDestroy();
     }
 
@@ -186,8 +158,6 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     @Override
     public void onError(int error) {
         try {
-
-
             String message;
             switch (error)
             {
@@ -230,7 +200,4 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
         }
         //m_SRListener.onError(error);
     }
-
-
-
 }
