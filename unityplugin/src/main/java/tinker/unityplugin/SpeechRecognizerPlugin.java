@@ -37,17 +37,18 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     /**
      * Static function call by the c# to launch the service
      */
-    public static void StartListening(UnityPlayerNativeActivity activity, String lang) {
+    public static void StartListening(UnityPlayerNativeActivity activity, String lang, String _game_object) {
         Log.i(TAG, "START LISTENING! ");
         if( UnityPlayer.currentActivity != null) {
             Log.i(TAG, "STARTING THE SERVICE! with language " + lang);
-            UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", "STARTING SERVICE");
+            UnityPlayer.UnitySendMessage(_game_object, "ReceiveMessageFromAndroid", "STARTING SERVICE");
             mActivity = activity;
             Intent intent = new Intent(mActivity, SpeechRecognizerPlugin.class);
             myVoiceSetting.language_setting = lang;
+            myVoiceSetting.game_object = _game_object;
             mActivity.startService(intent);
         }else{
-            UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", "The activity is not found");
+            UnityPlayer.UnitySendMessage(_game_object, "ReceiveMessageFromAndroid", "The activity is not found");
         }
 
     }
@@ -88,7 +89,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             if(text != null && text.isEmpty() )Log.i("TESTING: ", "final message! =" + text);
             try {
 
-                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", text);
+                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage(myVoiceSetting.game_object, "ReceiveMessageFromAndroid", text);
 
             } catch (Exception e) {
                 // Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
@@ -108,7 +109,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
         if(m_EngineSR!=null) {
             try {
 
-                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", text);
+                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage(myVoiceSetting.game_object, "ReceiveMessageFromAndroid", text);
 
             } catch (Exception e) {
                 // Log.e(TAG, "UnitySendMessage failed" + e.getMessage());

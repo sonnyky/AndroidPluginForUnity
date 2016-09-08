@@ -5,4 +5,5 @@ package tinker.unityplugin;
  */
 public class VoiceSettings {
     public String language_setting;
+    public String game_object;
 }
