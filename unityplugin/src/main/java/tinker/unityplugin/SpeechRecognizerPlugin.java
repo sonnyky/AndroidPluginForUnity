@@ -92,7 +92,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
                 if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage(myVoiceSetting.game_object, "ReceiveMessageFromAndroid", text);
 
             } catch (Exception e) {
-                // Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
+                Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
             }
             // m_EngineSR.stopListening();
             // we have to stop service everytime we finished with a recognition so the service can be started again
@@ -112,7 +112,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
                 if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage(myVoiceSetting.game_object, "ReceiveMessageFromAndroid", text);
 
             } catch (Exception e) {
-                // Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
+                Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
             }
             // m_EngineSR.stopListening();
         }
