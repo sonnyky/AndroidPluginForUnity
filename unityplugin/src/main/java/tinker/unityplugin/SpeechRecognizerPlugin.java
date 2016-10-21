@@ -29,7 +29,7 @@ import static android.speech.SpeechRecognizer.createSpeechRecognizer;
  * Created by sonny.kurniawan on 2016/03/02.
  */
 public class SpeechRecognizerPlugin extends RecognitionService implements RecognitionListener{
-    private SpeechRecognizer m_EngineSR;
+    public SpeechRecognizer m_EngineSR;
     public static UnityPlayerNativeActivity mActivity;
     static String TAG = "VOICE RECOGNITION";
     private static VoiceSettings myVoiceSetting = new VoiceSettings();
@@ -55,11 +55,13 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     //The service is created and voice recognition service has been started
     @Override
     public void onCreate() {
+
         m_EngineSR = createSpeechRecognizer(this);
         m_EngineSR.setRecognitionListener(this);
         Intent voiceIntent = RecognizerIntent.getVoiceDetailsIntent(getApplicationContext());
-        voiceIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,myVoiceSetting.language_setting);
+        voiceIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, myVoiceSetting.language_setting);
         m_EngineSR.startListening(voiceIntent);
+
         super.onCreate();
     }
 
@@ -94,7 +96,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             } catch (Exception e) {
                 Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
             }
-            // m_EngineSR.stopListening();
+            //m_EngineSR.stopListening();
             // we have to stop service everytime we finished with a recognition so the service can be started again
             stopService(new Intent(this, SpeechRecognizerPlugin.class));
         }
@@ -114,8 +116,10 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             } catch (Exception e) {
                 Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
             }
-            // m_EngineSR.stopListening();
+            //m_EngineSR.stopListening();
+            stopService(new Intent(this, SpeechRecognizerPlugin.class));
         }
+        this.onDestroy();
     }
 
 
@@ -136,6 +140,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     }
     @Override
     protected void onCancel(Callback listener) {
+
     }
     @Override
     public void onResults(Bundle results) {
