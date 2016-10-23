@@ -1,12 +1,7 @@
 package tinker.unityplugin;
 
-import android.app.Activity;
-import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Debug;
-import android.os.IBinder;
 import android.speech.RecognitionListener;
 import android.speech.RecognitionService;
 import android.speech.RecognizerIntent;
@@ -34,25 +29,26 @@ import static android.speech.SpeechRecognizer.createSpeechRecognizer;
  * Created by sonny.kurniawan on 2016/03/02.
  */
 public class SpeechRecognizerPlugin extends RecognitionService implements RecognitionListener{
-    private SpeechRecognizer m_EngineSR;
+    public SpeechRecognizer m_EngineSR;
     public static UnityPlayerNativeActivity mActivity;
     static String TAG = "VOICE RECOGNITION";
+    private static VoiceSettings myVoiceSetting = new VoiceSettings();
 
     /**
-     * StartListening**************************************************
-     * Static function call by the c# to launch the service SpeechService
+     * Static function call by the c# to launch the service
      */
-    public static void StartListening(UnityPlayerNativeActivity activity) {
+    public static void StartListening(UnityPlayerNativeActivity activity, String lang, String _game_object) {
         Log.i(TAG, "START LISTENING! ");
-
         if( UnityPlayer.currentActivity != null) {
-            Log.i(TAG, "STARTING THE SERVICE! ");
-            UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", "STARTING SERVICE");
+            Log.i(TAG, "STARTING THE SERVICE! with language " + lang);
+            UnityPlayer.UnitySendMessage(_game_object, "ReceiveMessageFromAndroid", "STARTING SERVICE");
             mActivity = activity;
             Intent intent = new Intent(mActivity, SpeechRecognizerPlugin.class);
+            myVoiceSetting.language_setting = lang;
+            myVoiceSetting.game_object = _game_object;
             mActivity.startService(intent);
         }else{
-            UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", "The activity is not found");
+            UnityPlayer.UnitySendMessage(_game_object, "ReceiveMessageFromAndroid", "The activity is not found");
         }
 
     }
@@ -60,18 +56,18 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     @Override
     public void onCreate() {
 
-        Log.i(TAG, "onCreate()");
         m_EngineSR = createSpeechRecognizer(this);
         m_EngineSR.setRecognitionListener(this);
         Intent voiceIntent = RecognizerIntent.getVoiceDetailsIntent(getApplicationContext());
+        voiceIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, myVoiceSetting.language_setting);
         m_EngineSR.startListening(voiceIntent);
+
         super.onCreate();
     }
 
     private void checkForCommands(Bundle bundle) {
         ArrayList<String> voiceText = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         if (voiceText != null) {
-            //SendToUnity("");
             if (voiceText.size() > 0) {
                 //Send the first recognition result
                 SendToUnity(voiceText.get(0));
@@ -95,17 +91,15 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             if(text != null && text.isEmpty() )Log.i("TESTING: ", "final message! =" + text);
             try {
 
-                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", text);
+                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage(myVoiceSetting.game_object, "ReceiveMessageFromAndroid", text);
 
             } catch (Exception e) {
-                // Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
+                Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
             }
-            // m_EngineSR.stopListening();
+            //m_EngineSR.stopListening();
             // we have to stop service everytime we finished with a recognition so the service can be started again
             stopService(new Intent(this, SpeechRecognizerPlugin.class));
         }
-
-
         this.onDestroy();
     }
 
@@ -117,13 +111,15 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
         if(m_EngineSR!=null) {
             try {
 
-                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage("CardboardMain", "ReceiveMessageFromAndroid", text);
+                if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage(myVoiceSetting.game_object, "ReceiveMessageFromAndroid", text);
 
             } catch (Exception e) {
-                // Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
+                Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
             }
-            // m_EngineSR.stopListening();
+            //m_EngineSR.stopListening();
+            stopService(new Intent(this, SpeechRecognizerPlugin.class));
         }
+        this.onDestroy();
     }
 
 
@@ -144,6 +140,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     }
     @Override
     protected void onCancel(Callback listener) {
+
     }
     @Override
     public void onResults(Bundle results) {
@@ -167,8 +164,6 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     @Override
     public void onError(int error) {
         try {
-
-
             String message;
             switch (error)
             {
@@ -211,7 +206,4 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
         }
         //m_SRListener.onError(error);
     }
-
-
-
 }
