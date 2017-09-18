@@ -81,6 +81,12 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        m_EngineSR.stopListening();
+    }
+
     /**
      * Send the data to Unity
      * @param text text or errors string
@@ -96,7 +102,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             } catch (Exception e) {
                 Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
             }
-            //m_EngineSR.stopListening();
+            m_EngineSR.stopListening();
             // we have to stop service everytime we finished with a recognition so the service can be started again
             stopService(new Intent(this, SpeechRecognizerPlugin.class));
         }
@@ -116,7 +122,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             } catch (Exception e) {
                 Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
             }
-            //m_EngineSR.stopListening();
+            m_EngineSR.stopListening();
             stopService(new Intent(this, SpeechRecognizerPlugin.class));
         }
         this.onDestroy();
