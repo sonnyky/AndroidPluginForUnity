@@ -33,6 +33,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     public static UnityPlayerNativeActivity mActivity;
     static String TAG = "VOICE RECOGNITION";
     private static VoiceSettings myVoiceSetting = new VoiceSettings();
+    private static Intent curIntent;
 
     /**
      * Static function call by the c# to launch the service
@@ -44,6 +45,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             UnityPlayer.UnitySendMessage(_game_object, "ReceiveMessageFromAndroid", "STARTING SERVICE");
             mActivity = activity;
             Intent intent = new Intent(mActivity, SpeechRecognizerPlugin.class);
+            curIntent = intent;
             myVoiceSetting.language_setting = lang;
             myVoiceSetting.game_object = _game_object;
             mActivity.startService(intent);
@@ -83,6 +85,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
 
     @Override
     public void onDestroy() {
+        mActivity.stopService(curIntent);
         super.onDestroy();
         //m_EngineSR.destroy();
     }
@@ -100,7 +103,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
                 if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage(myVoiceSetting.game_object, "ReceiveMessageFromAndroid", text);
 
             } catch (Exception e) {
-                Log.e   (TAG, "UnitySendMessage failed" + e.getMessage());
+                Log.e   (TAG, "UnitySendMessage success " + e.getMessage());
             }
             // we have to stop service everytime we finished with a recognition so the service can be started again
             //stopService(new Intent(this, SpeechRecognizerPlugin.class));
