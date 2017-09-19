@@ -55,7 +55,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     //The service is created and voice recognition service has been started
     @Override
     public void onCreate() {
-
+        Log.i(TAG, "ONCREATE FUNCTION ");
         m_EngineSR = createSpeechRecognizer(this);
         m_EngineSR.setRecognitionListener(this);
         Intent voiceIntent = RecognizerIntent.getVoiceDetailsIntent(getApplicationContext());
@@ -84,7 +84,7 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
     @Override
     public void onDestroy() {
         super.onDestroy();
-        m_EngineSR.stopListening();
+        //m_EngineSR.destroy();
     }
 
     /**
@@ -100,11 +100,11 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
                 if( UnityPlayer.currentActivity != null) UnityPlayer.UnitySendMessage(myVoiceSetting.game_object, "ReceiveMessageFromAndroid", text);
 
             } catch (Exception e) {
-                Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
+                Log.e   (TAG, "UnitySendMessage failed" + e.getMessage());
             }
-            m_EngineSR.stopListening();
             // we have to stop service everytime we finished with a recognition so the service can be started again
-            stopService(new Intent(this, SpeechRecognizerPlugin.class));
+            //stopService(new Intent(this, SpeechRecognizerPlugin.class));
+            //m_EngineSR.destroy();
         }
         this.onDestroy();
     }
@@ -122,8 +122,8 @@ public class SpeechRecognizerPlugin extends RecognitionService implements Recogn
             } catch (Exception e) {
                 Log.e(TAG, "UnitySendMessage failed" + e.getMessage());
             }
-            m_EngineSR.stopListening();
-            stopService(new Intent(this, SpeechRecognizerPlugin.class));
+            //stopService(new Intent(this, SpeechRecognizerPlugin.class));
+            //m_EngineSR.destroy();
         }
         this.onDestroy();
     }
