@@ -32,7 +32,7 @@ dependencies {
 
 task exportAar(type: Copy, dependsOn: assembleRelease)  {
     from('build/outputs/aar/')
-    into('C:\\Users\\Sonny\\Desktop\\Workspace\\VRProject\\Assets\\Plugins\\Android')
+    into('D:\\Temp')
     include('unityplugin-release.aar')
     rename('unityplugin-release.aar', 'unityplugin.aar')
 }
